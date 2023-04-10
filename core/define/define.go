@@ -19,3 +19,10 @@ var CodeLength = 6
 
 // CodeExpire 验证码过期时间(s)
 var CodeExpire = 300
+
+var SecretID = "AKIDBey9rSr232tlX6Um2Jes9QZYJxVqzwfL"
+var SecretKey = "c0DE1ZqaCe2PH1Xq3DLH9yhS7g291f5I"
+var CosBucket = "https://aurora-1307772891.cos.ap-nanjing.myqcloud.com"
+
+// DefaultPageSize 分页默认参数
+var DefaultPageSize = 20

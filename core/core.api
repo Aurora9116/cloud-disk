@@ -14,6 +14,72 @@ service core-api {
 	// 用户注册
 	@handler UserRegister
 	post /user/register (UserRegisterRequest) returns (UserRegisterReply)
+	
+}
+
+@server (
+	middleware: Auth
+)
+service core-api {
+	// 文件上传
+	@handler FileUpload
+	post /file/upload (FileUploadRequest) returns (FileUploadReply)
+	
+	// 用户文件的关联存储
+	@handler UserRepositorySave
+	post /user/repository/save (UserRepositorySaveRequest) returns (UserRepositorySaveReply)
+	
+	// 用户文件列表
+	@handler UserFileList
+	get /user/file/list (UserFileListRequest) returns (UserFileListReply)
+	
+	// 用户文件名称修改
+	@handler UserFileNameUpdate
+	post /user/file/name/update (UserFileNameUpdateRequest) returns (UserFileNameUpdateReply)
+	
+	// 用户文件夹创建
+	@handler UserFolderCreate
+	post /user/folder/create (UserFolderCreateRequest) returns (UserFolderCreateReply)
+}
+
+// 用户文件夹创建
+type UserFolderCreateRequest {
+	ParentId int64  `json:"parent_id"`
+	Name     string `json:"name"`
+}
+
+type UserFolderCreateReply {
+	Identity string `json:"identity"`
+}
+
+// 用户文件名称修改
+type UserFileNameUpdateRequest {
+	Identity string `json:"identity"`
+	Name     string `json:"name"`
+}
+
+type UserFileNameUpdateReply {}
+
+// 用户文件列表
+type UserFileListRequest {
+	Id   int64 `json:"id,optional"`
+	Page int   `json:"page,optional"`
+	Size int   `json:"size,optional"`
+}
+
+type UserFileListReply {
+	List  []*UserFile `json:"list"`
+	Count int64       `json:"count"`
+}
+
+type UserFile {
+	Id                 int64  `json:"id"`
+	Identity           string `json:"identity"`
+	RepositoryIdentity string `json:"repository_identity"`
+	Name               string `json:"name"`
+	Ext                string `json:"ext"`
+	Path               string `json:"path"`
+	Size               int64  `json:"size"`
 }
 
 // 用户登录
@@ -40,7 +106,8 @@ type MailCodeSendRequest {
 	Email string `json:"email"`
 }
 
-type MailCodeSendReply {}
+type MailCodeSendReply {
+}
 
 // 用户注册
 type UserRegisterRequest {
@@ -50,4 +117,32 @@ type UserRegisterRequest {
 	Code     string `json:"code"`
 }
 
-type UserRegisterReply {}
+type UserRegisterReply {
+}
+
+// 文件上传
+type FileUploadRequest {
+	Hash string `json:"hash,optional"`
+	Name string `json:"name,optional"`
+	Ext  string `json:"ext,optional"`
+	Size int64  `json:"size,optional"`
+	Path string `json:"path,optional"`
+}
+
+type FileUploadReply {
+	Identity string `json:"identity"`
+	Ext      string `json:"ext"`
+	Name     string `json:"name"`
+}
+
+// 用户文件的关联存储
+type UserRepositorySaveRequest {
+	ParentID           int64  `json:"parentId"`
+	RepositoryIdentity string `json:"repositoryIdentity"`
+	Ext                string `json:"ext"`
+	Name               string `json:"name"`
+}
+
+type UserRepositorySaveReply {
+	Identity string `json:"identity"`
+}
