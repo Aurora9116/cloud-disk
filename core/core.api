@@ -15,31 +15,102 @@ service core-api {
 	@handler UserRegister
 	post /user/register (UserRegisterRequest) returns (UserRegisterReply)
 	
+	// 获取资源详情
+	@handler ShareBasicDetail
+	get /share/basic/detail (ShareBasicDetailRequest) returns (ShareBasicDetailReply)
 }
 
 @server (
 	middleware: Auth
 )
 service core-api {
-	// 文件上传
+	// 用户-文件上传
 	@handler FileUpload
 	post /file/upload (FileUploadRequest) returns (FileUploadReply)
 	
-	// 用户文件的关联存储
+		// 用户-获取文件
+		@handler UserGetFile
+		get /user/get/file (UserGetFileRequest) returns (UserGetFileReply)
+	
+	// 用户-文件的关联存储
 	@handler UserRepositorySave
 	post /user/repository/save (UserRepositorySaveRequest) returns (UserRepositorySaveReply)
 	
-	// 用户文件列表
+	// 用户-文件列表
 	@handler UserFileList
 	get /user/file/list (UserFileListRequest) returns (UserFileListReply)
 	
-	// 用户文件名称修改
+	// 用户-文件名称修改
 	@handler UserFileNameUpdate
 	post /user/file/name/update (UserFileNameUpdateRequest) returns (UserFileNameUpdateReply)
 	
-	// 用户文件夹创建
+	// 用户-文件夹创建
 	@handler UserFolderCreate
 	post /user/folder/create (UserFolderCreateRequest) returns (UserFolderCreateReply)
+	
+	// 用户-文件删除
+	@handler UserFileDelete
+	delete /user/file/delete (UserFileDeleteRequest) returns (UserFileDeleteReply)
+	
+	// 用户-文件移动
+	@handler UserFileMove
+	put /user/file/move (UserFileMoveRequest) returns (UserFileMoveReply)
+	
+	// 创建分享记录
+	@handler ShareBasicCreate
+	put /share/basic/create (ShareBasicCreateRequest) returns (ShareBasicCreateReply)
+}
+
+// 获取资源详情
+type ShareBasicDetailRequest {
+	Identity string `json:"identity"`
+}
+
+type ShareBasicDetailReply {
+	Name               string `json:"name"`
+	Ext                string `json:"ext"`
+	Size               int64  `json:"size"`
+	Path               string `json:"path"`
+	RepositoryIdentity string `json:"repository_identity"`
+}
+
+
+
+// 获取文件
+type UserGetFileRequest {
+	Identity string `json:"identity"`
+	Name string `json:"name"`
+}
+
+type UserGetFileReply {
+	UrL string `json:"url"`
+}
+
+// 创建分享记录
+type ShareBasicCreateRequest {
+	RepositoryIdentity string `json:"repositoryIdentity"`
+	ExpiredTime        int    `json:"expire_time"`
+}
+
+type ShareBasicCreateReply {
+	Identity string `json:"identity"`
+}
+
+// 用户-文件移动
+type UserFileMoveRequest {
+	Identity       string `json:"identity"`
+	ParentIdentity string `json:"parent_identity"`
+}
+
+type UserFileMoveReply {
+}
+
+// 用户-文件删除
+type UserFileDeleteRequest {
+	Identity string `json:"identity"`
+}
+
+type UserFileDeleteReply {
 }
 
 // 用户文件夹创建

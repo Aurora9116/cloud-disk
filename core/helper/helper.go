@@ -94,7 +94,7 @@ func CosUpload(r *http.Request) (string, error) {
 		},
 	})
 	file, fileHeader, err := r.FormFile("file")
-	key := "cloud-disk/" + GetUUID() + path.Ext(fileHeader.Filename)
+	key := define.Disk + GetUUID() + path.Ext(fileHeader.Filename)
 
 	_, err = client.Object.Put(
 		context.Background(), key, file, nil,
@@ -103,4 +103,18 @@ func CosUpload(r *http.Request) (string, error) {
 		panic(err)
 	}
 	return define.CosBucket + "/" + key, nil
+}
+
+func CosGet(name string) (string, error) {
+	u, _ := url.Parse(define.CosBucket)
+	b := &cos.BaseURL{BucketURL: u}
+	client := cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  define.SecretID,
+			SecretKey: define.SecretKey,
+		},
+	})
+	key := define.Disk + name
+	objectURL := client.Object.GetObjectURL(key)
+	return objectURL.Path, nil
 }
