@@ -13,6 +13,8 @@ type UserClaim struct {
 
 var JwtKey = "cloud-disk-key"
 var MailPassword = "qtssdidxkuytbcah"
+var TokenExpire = 3600
+var RefreshTokenExpire = 3600 * 24
 
 // CodeLength 验证码长度
 var CodeLength = 6

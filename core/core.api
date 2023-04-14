@@ -18,6 +18,7 @@ service core-api {
 	// 获取资源详情
 	@handler ShareBasicDetail
 	get /share/basic/detail (ShareBasicDetailRequest) returns (ShareBasicDetailReply)
+	
 }
 
 @server (
@@ -28,9 +29,9 @@ service core-api {
 	@handler FileUpload
 	post /file/upload (FileUploadRequest) returns (FileUploadReply)
 	
-		// 用户-获取文件
-		@handler UserGetFile
-		get /user/get/file (UserGetFileRequest) returns (UserGetFileReply)
+	// 用户-获取文件
+	@handler UserGetFile
+	get /user/get/file (UserGetFileRequest) returns (UserGetFileReply)
 	
 	// 用户-文件的关联存储
 	@handler UserRepositorySave
@@ -59,6 +60,48 @@ service core-api {
 	// 创建分享记录
 	@handler ShareBasicCreate
 	put /share/basic/create (ShareBasicCreateRequest) returns (ShareBasicCreateReply)
+	
+	// 资源保存
+	@handler ShareBasicSave
+	put /share/basic/save (ShareBasicSaveRequest) returns (ShareBasicSaveReply)
+	
+	// 刷新Authorization
+	@handler RefreshAuthorization
+	post /refresh/authorization (RefreshAuthorizationRequest) returns (RefreshAuthorizationReply)
+	
+	// 文件上传基本信息处理
+	@handler FileUploadPrepare
+	get /file/upload/prepare (FileUploadPrepareRequest) returns (FileUploadPrepareReply)
+}
+
+// 文件上传基本信息处理
+type FileUploadPrepareRequest {
+	Name string `json:"name"`
+	Md5  string `json:"md5"`
+}
+
+type FileUploadPrepareReply {
+	Identity string `json:"identity"`
+	UploadId string `json:"upload_id"`
+}
+
+// 资源保存
+type RefreshAuthorizationRequest {
+}
+
+type RefreshAuthorizationReply {
+	Token        string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+// 资源保存
+type ShareBasicSaveRequest {
+	RepositoryIdentity string `json:"repository_identity"`
+	ParentId           int64  `json:"parent_id"`
+}
+
+type ShareBasicSaveReply {
+	Identity string `json:"identity"`
 }
 
 // 获取资源详情
@@ -74,12 +117,9 @@ type ShareBasicDetailReply {
 	RepositoryIdentity string `json:"repository_identity"`
 }
 
-
-
 // 获取文件
 type UserGetFileRequest {
 	Identity string `json:"identity"`
-	Name string `json:"name"`
 }
 
 type UserGetFileReply {
@@ -88,8 +128,8 @@ type UserGetFileReply {
 
 // 创建分享记录
 type ShareBasicCreateRequest {
-	RepositoryIdentity string `json:"repositoryIdentity"`
-	ExpiredTime        int    `json:"expire_time"`
+	UserRepositoryIdentity string `json:"user_repositoryIdentity"`
+	ExpiredTime            int    `json:"expire_time"`
 }
 
 type ShareBasicCreateReply {
@@ -160,7 +200,8 @@ type LoginRequest {
 }
 
 type LoginReply {
-	Token string `json:"token"`
+	Token        string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // 用户详情

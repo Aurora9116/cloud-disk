@@ -16,6 +16,7 @@ import (
 	"net/url"
 	"path"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -24,11 +25,15 @@ func Md5(value string) string {
 	return fmt.Sprintf("%x", hash.Sum([]byte(value)))
 }
 
-func GenerateToken(id int, identity string, name string) (string, error) {
+func GenerateToken(id int, identity string, name string, second int) (string, error) {
 	uc := define.UserClaim{
 		Id:       id,
 		Identity: identity,
 		Name:     name,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Duration(second) * time.Second).Unix(),
+			Issuer:    "",
+		},
 	}
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, uc)
 	tokenString, err := claims.SignedString([]byte(define.JwtKey))
@@ -93,19 +98,32 @@ func CosUpload(r *http.Request) (string, error) {
 			SecretKey: define.SecretKey,
 		},
 	})
+
 	file, fileHeader, err := r.FormFile("file")
 	key := define.Disk + GetUUID() + path.Ext(fileHeader.Filename)
-
 	_, err = client.Object.Put(
 		context.Background(), key, file, nil,
 	)
 	if err != nil {
 		panic(err)
 	}
+
 	return define.CosBucket + "/" + key, nil
 }
 
 func CosGet(name string) (string, error) {
+	//u, _ := url.Parse(define.CosBucket)
+	//b := &cos.BaseURL{BucketURL: u}
+	//client := cos.NewClient(b, &http.Client{
+	//	Transport: &cos.AuthorizationTransport{
+	//		SecretID:  define.SecretID,
+	//		SecretKey: define.SecretKey,
+	//	},
+	//})
+	//key := define.Disk + name
+	//objectURL := client.Object.GetObjectURL(key)
+	//return objectURL.String(), nil
+	// 替换成您的密钥
 	u, _ := url.Parse(define.CosBucket)
 	b := &cos.BaseURL{BucketURL: u}
 	client := cos.NewClient(b, &http.Client{
@@ -114,7 +132,24 @@ func CosGet(name string) (string, error) {
 			SecretKey: define.SecretKey,
 		},
 	})
-	key := define.Disk + name
-	objectURL := client.Object.GetObjectURL(key)
-	return objectURL.Path, nil
+	ak := define.SecretID
+	sk := define.SecretKey
+	name = strings.ReplaceAll(name, define.CosBucket+"/", "")
+	ctx := context.Background()
+	//_, err := client.Object.GetToFile(context.Background(), name, "./example.jpg", nil)
+	//if err != nil {
+	//	panic(err)
+	//}
+	presignedURL, err := client.Object.GetPresignedURL(ctx, http.MethodGet, name, ak, sk, time.Hour, nil)
+	if err != nil {
+		panic(err)
+	}
+	//resp, err := client.Object.Get(ctx, name, nil)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//bs, _ := io.ReadAll(resp.Body)
+	//defer resp.Body.Close()
+
+	return presignedURL.String(), nil
 }
